@@ -1,8 +1,7 @@
 <html>
-
 <head>
   <meta charset="UTF-8">
-  <title>watch yourself being watched</title>
+  <title>function: execute</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
@@ -12,10 +11,8 @@
 </head>
 
 <body>
-		<p id='status'>Loading...</p>
-    <a href="../forget/index.html" id="forget"><p>Forget</p></a>
-    <a href="../remember/index.html" id="remember"><p>Remember</p></a>
-    <p id='user_count'>There are <span id="count"></span> users online</p>
+		<div id="status-wrapper"><p id='status'>Loading...</p></div>
+    <div id="fixed"><p id='user_count'>There are <span id="count"></span> users online</p></div>
   <script src="sketch.js"></script>
 </body>
 
