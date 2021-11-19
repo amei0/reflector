@@ -1,101 +1,82 @@
-let video;
+$.getJSON('https://ipapi.co/json/', function(data) {
+  user.push(data.ip);
+})
+
+let capture;
 let poseNet;
 let poses = [];
 let user = [];
-
-$.getJSON('https://ipapi.co/json/', function(data) {
-  user.push(data.ip)
-})
+let ready = false;
+let open = false;
+let xDifference;
+let yDifference;
 
 function setup() {
-  createCanvas(2240, 1260);
-  video = createCapture(VIDEO);
-  video.size(width, height);
-
-  // Create a new poseNet method with a single detection
-  poseNet = ml5.poseNet(video, modelReady);
-  // This sets up an event that fills the global variable "poses"
-  // with an array every time new poses are detected
+  createCanvas((window.innerWidth * 1.5), (window.innerHeight * 1.5));
+  capture = createCapture(VIDEO);
+  capture.size(width, height);
+  poseNet = ml5.poseNet(capture, "single", modelReady);
   poseNet.on('pose', function(results) {
     poses = results;
   });
-  video.hide();
-  window.scroll({top:600,left:900})
-  
-  // 
+  capture.hide();
+  xDifference = width - window.innerWidth;
+  yDifference = height - window.innerHeight;
+  window.scroll({top:yDifference/2,left:xDifference/2, behavior:'instant'});
+  setInterval(userCount, 1600);
 }
 
 function userCount(){
     var users = int(random(1,60));  
-    select("#count").html(users)
+    select("#count").html(users);
 }
 
 function modelReady() {
-  select('#status').html('Move your body');
-  select('#forget').style('opacity', '100');
-  select('#remember').style('opacity', '100');
-  setInterval(userCount, 1000);
+  ready = true;
+  select('#status').html('Use your right hand to navigate-- try to reach yourself');
   select('#user_count').style('opacity', '100');
-  
-  
 }
 
 function draw(){
   fill(255, 0, 0);
-  // var users = int(random(1,60));
-  
-  
-
-
-  // background(255);
-  // image(video, 0, 0, width, height);
-
-  // We can call both functions to draw all keypoints and the skeletons
-  drawKeypoints();
-  // drawSkeleton();
+  textSize(18);
+  image(capture, width - (width/5), height/4, 400, 225);
+  if(ready == true){
+		watch();
+	}
 }
 
-// A function to draw ellipses over the detected keypoints
-function drawKeypoints()  {
-  // Loop through all the poses detected
+function watch() {
   for (let i = 0; i < poses.length; i++) {
-    // For each pose detected, loop through all the keypoints
-    let pose = poses[i].pose;
-    let rightWristY = pose.rightWrist.y
-    let rightWristX = pose.rightWrist.x
-    for (let j = 0; j < pose.keypoints.length; j++) {
-      // A keypoint is an object describing a body part (like rightArm or leftShoulder)
-      let keypoint = pose.keypoints[j];
-      console.log(keypoint)
-      // Only draw an ellipse is the pose probability is bigger than 0.2
-      if (keypoint.score > 0.2) {
-        noStroke();
-        text(user[0], keypoint.position.x, keypoint.position.y)
-        
-        if (rightWristY < 600){
-          window.scroll({top:0,left:900,behavior:'smooth'})
-        }else if (rightWristY > 600){
-          window.scroll({top:600,left:900,behavior:'smooth'})
-        }
-        if (rightWristX < 600){
-          window.scroll({top:0,left:0,behavior:'smooth'})
+    let pose = poses[i].pose;    
+    let rightWristX = pose.rightWrist.x;
+    let rightWristY = pose.rightWrist.y;
+
+    if (pose.rightWrist.confidence > 0.3){
+      text(user[0], rightWristX, rightWristY);
+
+      if (rightWristY < (height/2) && rightWristX < (width/2)){
+        window.scroll({top:0,left:0,behavior:'smooth'});
+      }
+      if (rightWristY < (height/2) && rightWristX > (width/2)){
+        window.scroll({top:0,left:xDifference,behavior:'smooth'});
+      }
+      if (rightWristY > (height/2) && rightWristX < (width/2)){
+        window.scroll({top:yDifference,left:0,behavior:'smooth'});
+      }
+      if (rightWristY > (height/2) && rightWristX > (width/2)){
+        window.scroll({top:yDifference/2,left:xDifference/2,behavior:'smooth'});
+      }
+
+      if(rightWristX > (width - (width/4)) && rightWristY < (height/3)){
+        if(open !== true){
+          openWindow();
         }
       }
     }
-  }
 }
 
-// A function to draw the skeletons
-function drawSkeleton() {
-  // Loop through all the skeletons detected
-  for (let i = 0; i < poses.length; i++) {
-    let skeleton = poses[i].skeleton;
-    // For every skeleton, loop through all body connections
-    for (let j = 0; j < skeleton.length; j++) {
-      let partA = skeleton[j][0];
-      let partB = skeleton[j][1];
-      stroke(255, 0, 0);
-      text(user[0], partA.position.x, partA.position.y, partB.position.x, partB.position.y);
-    }
-  }
+function openWindow(){
+  open = true;
+  window.open("forget/index.html");
 }
