@@ -54,6 +54,7 @@ function watch() {
 
     if (pose.rightWrist.confidence > 0.3){
       text(user[0], rightWristX, rightWristY);
+      console.log(rightWristX, rightWristY)
 
       if (rightWristY < (height/2) && rightWristX < (width/2)){
         window.scroll({top:0,left:0,behavior:'smooth'});
@@ -74,6 +75,7 @@ function watch() {
         }
       }
     }
+  }
 }
 
 function openWindow(){
